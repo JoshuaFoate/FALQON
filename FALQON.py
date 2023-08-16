@@ -157,8 +157,7 @@ def execute_FALQON(layers, qubits, beta, dt):
     graphs_array = [] #Array of Graphs
     beta_values = [] #Holds the Beta values
     graph_for_FALQON =[] #List of Graphs for FALQON to run on
-    for g in range(len(layers)):
-        graph_for_FALQON = list_graphs[g] #
+    for g in range(layers):
         z = pauli_matrices(3) #initializes z pauli matrix
         H_p = Hamiltonian_problem(graph_for_FALQON[0].edges, graph_for_FALQON[0].nodes, z, weighted = False) #Creates problem Hamiltonian
         x = pauli_matrices(1) #Initializes x pauli matrix
@@ -167,18 +166,18 @@ def execute_FALQON(layers, qubits, beta, dt):
         hamiltonian_preparation = []*2 #Creates Hamiltonian preparation array that holds the problem Hamiltonian
         hamiltonian_preparation.append(H_p[0]) #Add the problem Hamiltonian
         hamiltonian_preparation.append(H_d[0]) #Add the driver Hamiltonian
-        test_time_evolution = time_evolution(hamiltonian_preparation, layers, psi_initial, graph_for_FALQON[0].nodes, beta, dt)
+        test_time_evolution = time_evolution(hamiltonian_preparation, layers, psi_initial, graph_for_FALQON[0].nodes, beta, dt) #Do the time evolution
         H_p_argmin = np.where((np.diag(H_p[0])-np.diag(H_p[0])[np.argmin(np.diag(H_p[0]))])<=1e-10)[0]
-        h_p_values.append(test_time_evolution[3])
-        psi_values.append(test_time_evolution[5])
-        H_p_argmin_values.append(H_p_argmin)
-        Hamiltonian_problem_list.append(H_p[0])
-        Hamiltonian_driver_list.append(H_d[0])
-        graphs_array.append(graph_for_FALQON)
-        plot_falqon(test_time_evolution[3], H_p[0], test_time_evolution[5], H_p_argmin, graph_for_FALQON)
-        beta_list_original = test_time_evolution[0]
-        beta_values.append(beta_list_original)
-        plot_Beta(beta_values[g])
+        h_p_values.append(test_time_evolution[3]) #adds the 4th element from time_evolution to problem hamiltonian values
+        psi_values.append(test_time_evolution[5]) #adds the 6th element from time_evoltuion to psi values
+        H_p_argmin_values.append(H_p_argmin) #adds the problem hamiltonian argument value
+        Hamiltonian_problem_list.append(H_p[0]) #adds the 1st element of the problem hamiltonian to the list
+        Hamiltonian_driver_list.append(H_d[0]) #adds the 1st element of the driver hamiltonian to the list
+        graphs_array.append(graph_for_FALQON) #adds the FALQON graph to the graph array
+        plot_falqon(test_time_evolution[3], H_p[0], test_time_evolution[5], H_p_argmin, graph_for_FALQON) #plots FALQON
+        beta_list_original = test_time_evolution[0] #creats beta list and adds 1st element of time evolution to it
+        beta_values.append(beta_list_original) #adds the beta list to beta values
+        plot_Beta(beta_values[g]) #plot beta values
     return h_p_values, Hamiltonian_problem_list, psi_values, H_p_argmin_values, graphs_array, beta_values, Hamiltonian_driver_list
 
-execute_FALQON(250, 0, 0.0425)
+execute_FALQON(250, 2, 0, 0.0425)
