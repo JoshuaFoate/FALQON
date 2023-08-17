@@ -90,14 +90,15 @@ def Hamiltonian_problem(edges, nodes, operator, weighted = False):
         weights[np.where(weights > 1.0)[0]] = 1.0
     else:
         weights = np.ones(len(edges)) #Array with size len(edges) filled with ones
-    for j, k in zip(edges, weights):
+    for j, k in zip(edges, weights): #Maxcut
         j = np.sort(j)
-        Hamilt += (-1.0) * (identity - (1.0*k*ftls.reduce(np.kron, [np.eye(2**j[0]), (operator), np.eye(2**(j[1]-j[0]-1)), (operator), np.eye(2**(number_of_nodes-j[1]-1))])))/2
+        Hamilt += (-1.0) * (identity - (1.0*k*ftls.reduce(np.kron, [np.eye(2**j[0]), (operator), 
+            np.eye(2**(j[1]-j[0]-1)),(operator), np.eye(2**(number_of_nodes-j[1]-1))])))/2
     if np.isreal(Hamilt).all():
         Hamilt = Hamilt.real
     return Hamilt, weights
 
-#Generate Driver Hamiltonian for MaxCut
+#Generate Driver Hamiltonian for MaxCut and Maxclique
 def Hamiltonian_driver(nodes, operator):
     number_of_nodes = len(nodes)
     Hamilt = np.zeros([(2**number_of_nodes), (2**number_of_nodes)], dtype='complex128')
@@ -227,7 +228,7 @@ def execute_FALQON(list_graphs, layers, beta, dt):
     for g in range(len(list_graphs)):
         graph_for_FALQON = list_graphs[g]
         z = pauli_matrices(3)
-        H_p = Hamiltonian_problem(graph_for_FALQON[0].edges, graph_for_FALQON[0].nodes, z, weighted = False)
+        H_p = Hamiltonian_problem(graph_for_FALQON[0].edges, graph_for_FALQON[0].nodes, z, weighted = False) #Maxcut
         x = pauli_matrices(1)
         H_d = Hamiltonian_driver(graph_for_FALQON[0].nodes,  x)
         psi_initial = initial_psi(graph_for_FALQON[0].nodes)
@@ -246,6 +247,7 @@ def execute_FALQON(list_graphs, layers, beta, dt):
         beta_list_original = test_time_evolution[0]
         beta_values.append(beta_list_original)
         plot_Beta(beta_values[g])
+        print(H_p)
     return h_p_values, Hamiltonian_problem_list, psi_values, H_p_argmin_values, graphs_array, beta_values, Hamiltonian_driver_list
 
 list_of_graphs_for_FALQON = generate_graphs(1, 2, 10)
